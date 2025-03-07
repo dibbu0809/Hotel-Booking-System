@@ -1,0 +1,49 @@
+// Add this at the top of your schema file
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ... rest of your models ...
+
+model User {
+  id       Int       @id @default(autoincrement())
+  email    String    @unique
+  password String
+  bookings Booking[]
+}
+
+model Hotel {
+  id       Int       @id @default(autoincrement())
+  name     String
+  location String
+  price    Float
+  image    String
+  bookings Booking[]
+}
+
+model Booking {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  hotelId      Int
+  checkInDate  DateTime
+  checkOutDate DateTime
+  createdAt    DateTime  @default(now())
+  status       String    @default("PENDING")  // Add this line
+  user         User      @relation(fields: [userId], references: [id])
+  hotel        Hotel     @relation(fields: [hotelId], references: [id])
+  checkIns     CheckIn[]
+}
+
+model CheckIn {
+  id            Int      @id @default(autoincrement())
+  bookingId     Int
+  guestName     String
+  aadhaarNumber String
+  booking       Booking  @relation(fields: [bookingId], references: [id])
+  createdAt     DateTime @default(now())
+}
